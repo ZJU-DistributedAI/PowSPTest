@@ -1,6 +1,7 @@
-import transmaker
 import mdptoolbox
 import numpy as np
+import transmaker
+import ethtransmat as eth
 
 esp = 0.04
 def get_rho(alpha, init_high=1, init_low=0, cutoff=7, rs=0.1, omega=0.1, cm=0):
@@ -24,28 +25,38 @@ def get_rho(alpha, init_high=1, init_low=0, cutoff=7, rs=0.1, omega=0.1, cm=0):
     return rho,total_time
 
 esp2 = 0.5
-def get_vd(alpha = 0.1,cm = 0.0,k = 6,rs = 0.1,gamma = 0,cutoff=10,init_high = 10**9,omega=0,returnpolicy = False):
+def get_vd(alpha = 0.1,cm = 0.0,k = 6,rs = 0.1,gamma = 0,cutoff=10,init_high = 10**9,omega=0,returnpolicy = False,ethmat = False):
     low = 0
     high = init_high
     vd = (high+low)/2
     while high-vd > esp2:
-        mats = transmaker.TransMat()
-        mats.set_attr(alpha_=alpha,vd_=vd,cm_=cm,k_=k,gamma_=gamma,omega_=omega,rs_=rs, cutoff_=cutoff)
-        P,R = mats.get_mat(make_reward_type=1,with_exit=True)
+        if not ethmat:
+            mats = transmaker.TransMat()
+            mats.set_attr(alpha_=alpha,vd_=vd,cm_=cm,k_=k,gamma_=gamma,omega_=omega,rs_=rs, cutoff_=cutoff)
+            P,R = mats.get_mat(make_reward_type=1,with_exit=True)
+        else:
+            P,R = eth.get_mat(cutoff=cutoff,k=k,rs=rs,gamma=gamma,cm=cm,vd = vd,alpha=alpha)
+
         vi = mdptoolbox.mdp.PolicyIteration(P,R,0.999)
         vi.run()
-        poli = [i for i in vi.policy]
         v0 = vi.V[1]
         exit_state = False
-        for i in range(len(poli)):
-            la = int(i/3/cutoff/cutoff)
-            lh = int(i/3/cutoff)%cutoff
-            #be = int(i/3)%cutoff
-            #s = i%3
-            flag =  la > lh and la > k #貌似没什么必要判断
-            if flag and poli[i] == 4:
-                exit_state = True
-                break
+        if not ethmat:
+            poli = [i for i in vi.policy]
+            for i in range(len(poli)):
+                la = int(i/3/cutoff/cutoff)
+                lh = int(i/3/cutoff)%cutoff
+                #be = int(i/3)%cutoff
+                #s = i%3
+                flag =  la > lh and la > k #貌似没什么必要判断
+                if flag and poli[i] == 4:
+                    exit_state = True
+                    break
+        else:
+            for i in vi.policy:
+                if i==5:
+                    exit_state= True
+                    break
         if exit_state and v0 > 0:
             high = vd
         else:
@@ -242,3 +253,12 @@ def get_figure9(cutoff = 8):
             z[i][j] = vd
             print(x[i][j],y[i][j],vd)
     return x,y,z
+
+
+def get_figure10(cutoff = 9):
+    #TODO
+    vde = get_vd(alpha=0.2,gamma=0,rs=0.068,cm=0,omega=0,k=6,cutoff=cutoff,ethmat=True)
+    print(vde)
+    vde = get_vd(alpha=0.3,gamma=0,rs=0.068,cm=0,omega=0,k=6,cutoff=cutoff,ethmat=True)
+    print(vde)
+
