@@ -42,20 +42,25 @@ def get_vd(alpha = 0.1,cm = 0.0,k = 6,rs = 0.1,gamma = 0,cutoff=10,init_high = 1
         v0 = vi.V[1]
         exit_state = False
         if not ethmat:
-            poli = [i for i in vi.policy]
-            for i in range(len(poli)):
+            for i in range(len(vi.policy)):
                 la = int(i/3/cutoff/cutoff)
                 lh = int(i/3/cutoff)%cutoff
                 #be = int(i/3)%cutoff
                 #s = i%3
-                flag =  la > lh and la > k #貌似没什么必要判断
-                if flag and poli[i] == 4:
+                flag =  cutoff> la > lh and la > k #貌似没什么必要判断
+                if flag and vi.policy[i] == 4:
                     exit_state = True
                     break
         else:
-            for i in vi.policy:
-                if i==5:
-                    exit_state= True
+            v0 = vi.V[0]
+            for i in range(len(vi.policy)):
+                la = int(i/6/cutoff)
+                lh = int(i/6)%cutoff
+                #s = int(i/3)%2
+                #f = i%3
+                flag =  cutoff > la > lh and la > k
+                if flag and vi.policy[i] == 5:
+                    exit_state = True
                     break
         if exit_state and v0 > 0:
             high = vd
@@ -254,11 +259,40 @@ def get_figure9(cutoff = 8):
             print(x[i][j],y[i][j],vd)
     return x,y,z
 
+def get_figure10(cutoff = 10):
+    alphas = [i/20 for i in range(1,8)]
+    vdbs = []
+    vde6s = []
+    vde12s = []
+    vdb = 10**9
+    vde6 = 10**9
+    vde12 = 10**9
+    for alpha in alphas:
+        vdb = get_vd(alpha=alpha,gamma=0,rs=0.0041,cm=0,omega=0,k=6,cutoff=cutoff,init_high = vdb) #cm = ???
+        vde6 = get_vd(alpha=alpha,gamma=0,rs=0.068,cm=0,omega=0,k=6,cutoff=cutoff,ethmat=True,init_high = vde6)
+        vde12 = get_vd(alpha=alpha,gamma=0,rs=0.068,cm=0,omega=0,k=8,cutoff=cutoff,ethmat=True,init_high = vde12)
+        
+        print(vdb,vde6,vde12)
+        vdbs.append(vdb)
+        vde6s.append(vde6)
+        vdd12s.append(vde12)
+    print(alphas,vdbs,vde6s,vde12s)
+    return alphas,vdbs,vde6s,vde12s
 
-def get_figure10(cutoff = 9):
-    #TODO
-    vde = get_vd(alpha=0.2,gamma=0,rs=0.068,cm=0,omega=0,k=6,cutoff=cutoff,ethmat=True)
-    print(vde)
-    vde = get_vd(alpha=0.3,gamma=0,rs=0.068,cm=0,omega=0,k=6,cutoff=cutoff,ethmat=True)
-    print(vde)
-
+def get_figure11(cutoff = 10):
+    alphas = [i/20 for i in range(1,8)]
+    vdbs = []
+    vdes = []
+    vdds = []
+    vdb = 10**9
+    for alpha in alphas:
+        vdb = get_vd(alpha=alpha,gamma=0,rs=0.068,cm=0,omega=0,k=6,cutoff=cutoff,init_high = vdb) #cm = ???
+        vde = get_vd(alpha=alpha,gamma=0,rs=0.068,cm=0,omega=0,k=6,cutoff=cutoff,ethmat=True,init_high = vdb)
+        vdd = vdb - vde
+        print(vdb,vde,vdd)
+        vdbs.append(vdb)
+        vdes.append(vde)
+        vdds.append(vdd)
+    print(alphas,vdbs,vdes,vdds)
+    return alphas,vdbs,vdes,vdds
+   

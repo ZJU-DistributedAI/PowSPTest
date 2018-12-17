@@ -112,5 +112,29 @@ def draw_figure9():
     ax.set_title('result')
     fig.tight_layout()
     plt.show()
+    
+def draw_figure10():
+    alpha,vdb,vde6,vde12 = mdpsol.get_figure11()
+    plt.title('Result Analysis')
+    plt.semilogy(alpha, vdb,  color='green', label='bitcoin')
+    plt.semilogy(alpha, vde6, color='red', label='eth k=6')
+    plt.semilogy(alpha, vde12, color='blue', label='eth k=12')
+    plt.semilogy(alpha, [i*100*200 for i in vdb],  color='green', label='bitcoin $',linestyle=":")
+    plt.semilogy(alpha, [i*100 for i in vde6], color='red', label='eth k=6 $',linestyle=":")
+    plt.semilogy(alpha, [i*100 for i in vde12], color='blue', label='eth k=12 $',linestyle=":")
+    plt.legend()
+    plt.xlabel('alpha')
+    plt.ylabel('vd or $')
+    plt.show()
+    
+def draw_figure11():
+    alpha , vdb,vde,vdd = mdpsol.get_figure11()
+    plt.title('Result Analysis')
+    plt.semilogy(alpha, vdb,  color='green', label='bitcoin')
+    plt.semilogy(alpha, vde, color='red', label='eth')
+    plt.semilogy(alpha, vdd, color='blue', label='Δvd')
+    plt.legend()
+    plt.xlabel('alpha')
+    plt.ylabel('vd')
+    plt.show()
 
-draw_figure9()

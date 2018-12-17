@@ -116,7 +116,7 @@ def get_single(la,lh,state,flag,action,alpha,rs,gamma,cm,ru,vd,k,cutoff):
         if row in [0,2]:
             #return [-cm]*3
             return [-cm-lh]*3
-        if row in [4,5,6]:
+        elif row in [4,5,6]:
             return [-cm] *3
         elif row == 1:
             #return [ru-cm] *3
@@ -138,11 +138,11 @@ def get_single(la,lh,state,flag,action,alpha,rs,gamma,cm,ru,vd,k,cutoff):
     row = row_map[action][state][flag]
     if action == action_map['o'] and la <= lh : #same like or
         row = -1
-    elif action == action_map['r'] and not (lh <= 6 and lh >1 and la>=1):
+    elif action == action_map['r'] and  (lh > 6 or lh <= 1 or la< 1):
         row = -1
-    elif action == action_map['e'] and not ( la > lh and la > k):
+    elif action == action_map['e'] and ( la <= lh or la <= k):
         row = -1
-    elif cutoff -1 in [la,lh] and action in [action_map['w'],action_map['m']]:
+    elif (cutoff -1) in [la,lh] and action in [action_map['w'],action_map['m']]:
         row = -1
     elif action == action_map['m'] and la < lh :
         row = -1
@@ -152,7 +152,7 @@ def get_single(la,lh,state,flag,action,alpha,rs,gamma,cm,ru,vd,k,cutoff):
     return tuple_return(row)
 
 
-def get_mat(cutoff = 10,alpha = 0.2,rs=0.1,gamma = 0,cm = 0,vd = 20,ru = 7/8,k=6):
+def get_mat(cutoff = 10,alpha = 0.2,rs=0.1,gamma = 0.5,cm = 0,vd = 20,ru = 7/8,k=6):
     pre_state = [[] for i in action_space]
     # result state
     result_state = [[] for i in action_space]
